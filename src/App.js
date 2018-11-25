@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import CanvasComponent from "./components/2d-stitch-canvas";
+import CanvasComponent from "./containers/2d-stitch-canvas";
 import { getImagePaths } from "./services/image";
 
 class App extends Component {
@@ -13,7 +13,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <CanvasComponent imageGroup={this.imageGroup} scaleBy={1.05}/>
+        <CanvasComponent imageGroup={this.imageGroup} scaleBy={1.05} />
       </div>
     );
   }

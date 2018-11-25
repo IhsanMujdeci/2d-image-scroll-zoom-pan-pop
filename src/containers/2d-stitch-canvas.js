@@ -4,7 +4,7 @@ import {loadImage, getImageHeight, getImageWidth, getImageX, getImageY} from "..
 
 class CanvasComponent extends Component {
     constructor({imageGroup, scaleBy = 1.1, eagerLoad = false}){
-        super({imageGroup, scaleBy});
+        super({imageGroup, scaleBy, eagerLoad});
         this.state = {
             imageGroup: imageGroup,
             stage: this.refs.stage,
