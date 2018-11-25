@@ -20,16 +20,15 @@ function imagePaths(uri, layers, mimeType){
 
     return imageGroup
 }
-
 const imageUri = "/images/tiled";
-const imagesImproved = imagePaths(imageUri, 4, 'jpg');
+const imageMimeType = 'jpg';
 
 class CanvasComponent extends Component {
     constructor(props){
         super(props);
         this.state = {
             image: null,
-            layers: imagesImproved,
+            layers: imagePaths(imageUri, 4, imageMimeType),
             stage: this.refs.stage,
             scaleBy: 1.1,
             lastDist: 0,
@@ -40,6 +39,8 @@ class CanvasComponent extends Component {
             baseImageHeight:0,
             layer0Visible: true,
             layer1Visible: false,
+            layerVisibility:[true, false, false, false],
+            visibleLayer:0,
             loadedImages: [new Array(2), new Array(2)]
         }
     }
@@ -50,7 +51,7 @@ class CanvasComponent extends Component {
         const image = new window.Image();
 
         // init the first image
-        image.src = imagesImproved[0][0][0].path;
+        image.src = this.state.layers[0][0][0].path;
         image.onload = ()=> {
             this.setState({
                 image:  image,
@@ -59,6 +60,7 @@ class CanvasComponent extends Component {
             })
         };
 
+        // TODO this is loading everything even first image, refactor
         this.state.layers.forEach((layer, l)=>{
             layer.forEach((images, y)=>{
                 images.forEach((image, x)=>{
@@ -109,12 +111,27 @@ class CanvasComponent extends Component {
         this.setState({
             scale: newScale,
             x: -(mousePointX - stage.getPointerPosition().x / newScale) * newScale,
-            y: -(mousePointY - stage.getPointerPosition().y / newScale) * newScale
+            y: -(mousePointY - stage.getPointerPosition().y / newScale) * newScale,
+            visibleLayer: this.calcLayerVisibility(newScale)
         });
 
         stage.batchDraw();
     }
-    render() {
+    calcLayerVisibility(newScale = 1){
+        let visibleLayer = Math.floor(newScale)-1;
+        if(visibleLayer < 0){
+            visibleLayer = 0
+        }
+        else if(this.state.layers.length < visibleLayer){
+            visibleLayer = this.state.layers.length
+        }
+
+        return visibleLayer
+    }
+    layerIsVisible(layer){
+        return this.state.visibleLayer === layer
+    }
+    renderz() {
         return (
             <>
                 <p>Zoom: {this.state.scale}</p>
@@ -133,7 +150,7 @@ class CanvasComponent extends Component {
                     <Layer ref="layer"
                            width={this.state.baseImageWidth}
                            height={this.state.baseImageHeight}
-                           visible={this.state.layer0Visible}
+                           visible={this.layerIsVisible(0)}
                            listening={false}
 
                     >
@@ -157,7 +174,7 @@ class CanvasComponent extends Component {
                         ref="layer"
                         width={this.state.baseImageWidth}
                         height={this.state.baseImageHeight}
-                        visible={this.state.layer1Visible}
+                        visible={this.layerIsVisible(1)}
                     >
                         <Image
                             image={this.state.layers[1][0][0].image}
@@ -192,7 +209,7 @@ class CanvasComponent extends Component {
             </>
         );
     }
-    renderz() {
+    render() {
         return (
             <>
                 <p>Zoom: {this.state.scale}</p>
@@ -207,15 +224,15 @@ class CanvasComponent extends Component {
                     x={this.state.x}
                     y={this.state.y}
                 >
-                    {this.state.imageGroup.map((group, layer) =>
-                        <Layer>
+                    {this.state.layers.map((group, layer) =>
+                        <Layer visible={this.layerIsVisible(layer)}>
                             {group.map((images, y) =>
                                 images.map((image, x)=>
                                     <Image
                                         height={this.getDimension(layer)}
                                         width={this.getDimension(layer)}
-                                        x={this.getPosition(layer, x)}
-                                        y={this.getPosition(layer, y)}
+                                        x={this.getPosition(layer, y)}
+                                        y={this.getPosition(layer, x)}
                                         image={this.state.layers[layer][y][x].image}
                                     />
                                 )
