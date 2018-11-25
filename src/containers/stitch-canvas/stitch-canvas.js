@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Stage, Layer, Image } from 'react-konva';
 import {loadImage, getImageHeight, getImageWidth, getImageX, getImageY} from "../../services/image";
+import {Button} from "../../components/button/button";
+// import { faTimes } from '@fortawesome/free-solid-svg-icons'
 
 class CanvasComponent extends Component {
     constructor({imageGroup, scaleBy = 1.1, eagerLoad = false, className}){
@@ -75,7 +77,7 @@ class CanvasComponent extends Component {
         const mousePointX = stage.getPointerPosition().x / oldScale - stage.x() / oldScale;
         const mousePointY = stage.getPointerPosition().y / oldScale - stage.y() / oldScale;
 
-        const newScale = evt.deltaY < 0 ? oldScale * this.state.scaleBy : oldScale / this.state.scaleBy;
+        const newScale = this.zoom(evt.deltaY, oldScale)
         let visibleLayer = this.calcVisibleLayer(newScale);
 
         if(!this.isLayerLoaded(visibleLayer)){
@@ -93,6 +95,9 @@ class CanvasComponent extends Component {
         });
 
         stage.batchDraw();
+    }
+    zoom(delta, oldScale){
+        return delta < 0 ? oldScale * this.state.scaleBy : oldScale / this.state.scaleBy;
     }
     shouldEagerLoad(visibleLayer){
         return this.state.eagerLoad && !this.isLayerLoaded(this.limitToMaxLayer(visibleLayer + 1));
@@ -116,7 +121,6 @@ class CanvasComponent extends Component {
     render() {
         return (
             <div className={this.props.className}>
-                {/*<p>Zoom: {this.state.scale}</p>*/}
                 <Stage
                     ref="stage"
                     width={window.innerWidth}

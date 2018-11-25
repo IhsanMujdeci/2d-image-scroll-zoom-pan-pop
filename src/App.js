@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.scss';
 import CanvasComponent from "./containers/stitch-canvas/stitch-canvas";
 import { getImagePaths } from "./services/image";
-import {Header} from "./components/header/header";
+import { Header } from "./components/header/header";
 
 class App extends Component {
   constructor(props){
@@ -14,7 +14,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-          <Header/>
+          {/*<Header/>*/}
           <CanvasComponent
               className='stitch-canvas'
               imageGroup={this.imageGroup} scaleBy={1.05}
