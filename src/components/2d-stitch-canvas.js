@@ -3,11 +3,12 @@ import { Stage, Layer, Image } from 'react-konva';
 import {loadImage, getImageHeight, getImageWidth, getImageX, getImageY} from "../services/image";
 
 class CanvasComponent extends Component {
-    constructor({imageGroup, scaleBy = 1.1}){
+    constructor({imageGroup, scaleBy = 1.1, eagerLoad = false}){
         super({imageGroup, scaleBy});
         this.state = {
             imageGroup: imageGroup,
             stage: this.refs.stage,
+            eagerLoad: eagerLoad,
             scaleBy: scaleBy,
             lastDist: 0,
             scale: 1,
@@ -30,6 +31,10 @@ class CanvasComponent extends Component {
         imageGroup[0][0][0].width = image.width;
         imageGroup[0][0][0].x = 0;
         imageGroup[0][0][0].y = 0;
+
+        if(this.shouldEagerLoad()){
+            this.loadLayer(this.limitToMaxLayer(1))
+        }
 
         this.setState({
             imageGroup: imageGroup,
@@ -74,7 +79,10 @@ class CanvasComponent extends Component {
         let visibleLayer = this.calcVisibleLayer(newScale);
 
         if(!this.isLayerLoaded(visibleLayer)){
-            this.loadLayer(visibleLayer)
+            this.loadLayer(visibleLayer);
+        }
+        if(this.shouldEagerLoad(visibleLayer)){
+            this.loadLayer(this.limitToMaxLayer(visibleLayer + 1))
         }
 
         this.setState({
@@ -86,15 +94,21 @@ class CanvasComponent extends Component {
 
         stage.batchDraw();
     }
+    shouldEagerLoad(visibleLayer){
+        return this.state.eagerLoad && !this.isLayerLoaded(this.limitToMaxLayer(visibleLayer + 1));
+    }
     calcVisibleLayer(newScale){
         let visibleLayer = Math.floor(newScale)-1;
         if(visibleLayer < 0){
             visibleLayer = 0
         }
-        else if(this.state.imageGroup.length-1 < visibleLayer){
-            visibleLayer = this.state.imageGroup.length-1
+        return this.limitToMaxLayer(visibleLayer)
+    }
+    limitToMaxLayer(layer){
+        if(layer > this.state.imageGroup.length-1){
+            return this.state.imageGroup.length-1
         }
-        return visibleLayer
+        return layer
     }
     layerIsVisible(layer){
         return this.state.visibleLayer === layer
