@@ -36,6 +36,8 @@ class CanvasComponent extends Component {
             baseImageHeight: image.height,
             layersLoaded: {0: true}
         })
+
+        console.log(this.refs)
     }
     loadImage(src){
         return new Promise(resolve=>{
@@ -69,16 +71,16 @@ class CanvasComponent extends Component {
         return this.state.layersLoaded[layerNumber]
     }
     getImageWidth(layer){
-        return this.state.baseImageWidth/(layer+1)
+        return this.state.baseImageWidth/Math.pow(2, layer)
     }
     getImageHeight(layer){
-        return this.state.baseImageHeight/(layer+1)
+        return this.state.baseImageHeight/Math.pow(2, layer)
     }
     getImageX(layer, position){
-        return (this.state.baseImageWidth/(layer+1))*position
+        return this.state.baseImageWidth/Math.pow(2, layer)*position
     }
     getImageY(layer, position){
-        return (this.state.baseImageHeight/(layer+1))*position
+        return this.state.baseImageHeight/Math.pow(2, layer)*position
     }
     wheel({evt}){
         evt.preventDefault();
@@ -146,7 +148,6 @@ class CanvasComponent extends Component {
                                         x={this.state.imageGroup[layer][x][y].x}
                                         y={this.state.imageGroup[layer][x][y].y}
                                         image={this.state.imageGroup[layer][x][y].image}
-                                        ref={'image'+x+x}
                                     />
                                 )
                             )}
