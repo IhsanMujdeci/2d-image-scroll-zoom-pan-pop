@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "konva": "^2.5.1",
+    "node-sass": "^4.10.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-konva": "^16.6.31",

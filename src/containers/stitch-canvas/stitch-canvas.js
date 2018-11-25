@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Stage, Layer, Image } from 'react-konva';
-import {loadImage, getImageHeight, getImageWidth, getImageX, getImageY} from "../services/image";
+import {loadImage, getImageHeight, getImageWidth, getImageX, getImageY} from "../../services/image";
 
 class CanvasComponent extends Component {
-    constructor({imageGroup, scaleBy = 1.1, eagerLoad = false}){
+    constructor({imageGroup, scaleBy = 1.1, eagerLoad = false, className}){
         super({imageGroup, scaleBy, eagerLoad});
         this.state = {
             imageGroup: imageGroup,
@@ -115,8 +115,8 @@ class CanvasComponent extends Component {
     }
     render() {
         return (
-            <>
-                <p>Zoom: {this.state.scale}</p>
+            <div className={this.props.className}>
+                {/*<p>Zoom: {this.state.scale}</p>*/}
                 <Stage
                     ref="stage"
                     width={window.innerWidth}
@@ -146,7 +146,7 @@ class CanvasComponent extends Component {
                         </Layer>
                     )}
                 </Stage>
-            </>
+            </div>
         );
     }
 }

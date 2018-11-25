@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import './App.css';
-import CanvasComponent from "./containers/2d-stitch-canvas";
+import './App.scss';
+import CanvasComponent from "./containers/stitch-canvas/stitch-canvas";
 import { getImagePaths } from "./services/image";
+import {Header} from "./components/header/header";
 
 class App extends Component {
   constructor(props){
@@ -13,7 +14,11 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <CanvasComponent imageGroup={this.imageGroup} scaleBy={1.05} />
+          <Header/>
+          <CanvasComponent
+              className='stitch-canvas'
+              imageGroup={this.imageGroup} scaleBy={1.05}
+          />
       </div>
     );
   }

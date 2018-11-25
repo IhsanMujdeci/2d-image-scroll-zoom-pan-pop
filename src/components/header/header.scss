@@ -1,0 +1,12 @@
+@import '../../variables.scss';
+
+$aeroYello: #fd0;
+
+.header{
+  position: fixed;
+  width: 100vw;
+  background-color: $aeroYello;
+  top: 0;
+  margin: 0;
+  height: $headerHeight
+}
