@@ -73,18 +73,18 @@ class CanvasComponent extends Component {
             img3: null,
             layer0Visible: true,
             layer1Visible: false,
+            loadedImages: [new Array(2), new Array(2)]
         }
     }
     componentDidMount() {
-        this.updateCanvas();
+        this.initImage();
     }
-    updateCanvas(){
+    initImage(){
         const image = new window.Image();
 
+        // init the first image
         image.src = images[0][0];
         image.onload = ()=> {
-
-
             console.log(image.width)
             console.log(image.height)
             this.setState({
@@ -93,6 +93,22 @@ class CanvasComponent extends Component {
                 baseImageHeight: image.hegith,
             })
         };
+
+        images[1].forEach((images, y)=>{
+            images.forEach((image, x)=>{
+                const i = new window.Image();
+                i.src = image
+                i.onload = () => {
+                    let loadedImages = this.state.loadedImages;
+                    loadedImages[y][x] = i
+                    this.setState({
+                        loadedImages: loadedImages
+                    })
+                }
+            })
+        })
+
+        console.log(this.state.loadedImages)
 
         const img0 = new window.Image();
         img0.src = images[1][0][0];
@@ -128,6 +144,9 @@ class CanvasComponent extends Component {
     }
     getDimension(layer){
         return this.state.baseImageWidth/(layer+1)
+    }
+    getPosition(layer, position){
+        return (this.state.baseImageWidth / (layer+1)) * position
     }
     wheel({evt}){
         evt.preventDefault();
@@ -178,7 +197,6 @@ class CanvasComponent extends Component {
                     y={this.state.y}
                 >
 
-
                     <Layer ref="layer"
                            width={this.state.baseImageWidth}
                            height={this.state.baseImageHeight}
@@ -209,32 +227,32 @@ class CanvasComponent extends Component {
                         visible={this.state.layer1Visible}
                     >
                         <Image
-                            image={this.state.img0}
+                            image={this.state.loadedImages[0][0]}
                             height={this.getDimension(1)}
                             width={this.getDimension(1)}
-                            x={0}
-                            y={0}
+                            x={this.getPosition(1, 0)}
+                            y={this.getPosition(1,0)}
                         />
                         <Image
-                            image={this.state.img1}
+                            image={this.state.loadedImages[1][0]}
                             height={this.getDimension(1)}
                             width={this.getDimension(1)}
-                            x={128}
-                            y={0}
+                            x={this.getPosition(1, 1)}
+                            y={this.getPosition(1, 0)}
                         />
                         <Image
-                            image={this.state.img2}
+                            image={this.state.loadedImages[0][1]}
                             height={this.getDimension(1)}
                             width={this.getDimension(1)}
-                            x={0}
-                            y={128}
+                            x={this.getPosition(1, 0)}
+                            y={this.getPosition(1, 1)}
                         />
                         <Image
-                            image={this.state.img3}
+                            image={this.state.loadedImages[1][1]}
                             height={this.getDimension(1)}
                             width={this.getDimension(1)}
-                            x={128}
-                            y={128}
+                            x={this.getPosition(1, 1)}
+                            y={this.getPosition(1, 1)}
                         />
                     </Layer>
                 </Stage>
@@ -256,10 +274,17 @@ class CanvasComponent extends Component {
                     x={this.state.x}
                     y={this.state.y}
                 >
-                    {this.state.imageGroup.map(group =>
+                    {this.state.imageGroup.map((group, layer) =>
                         <Layer>
-                            {group.map(image =>
-                                <Image/>
+                            {group.map((images, y) =>
+                                images.map((image, x)=>
+                                    <Image
+                                        height={this.getDimension(layer)}
+                                        width={this.getDimension(layer)}
+                                        x={this.getPosition(layer, x)}
+                                        y={this.getPosition(layer, y)}
+                                    />
+                                )
                             )}
                         </Layer>
                     )}
