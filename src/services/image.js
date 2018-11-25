@@ -16,3 +16,29 @@ export function getImagePaths(uri, layers, mimeType){
 
     return imageGroup
 }
+
+export function getImageWidth(baseImageWidth, layer){
+    return baseImageWidth/Math.pow(2, layer)
+}
+
+export function getImageHeight(baseImageHeight, layer){
+    return baseImageHeight/Math.pow(2, layer)
+}
+
+export function getImageX(baseImageWidth, layer, position){
+    return baseImageWidth/Math.pow(2, layer)*position
+}
+
+export function getImageY(baseImageHeight, layer, position){
+    return baseImageHeight/Math.pow(2, layer)*position
+}
+
+export function loadImage(src){
+    return new Promise(resolve=>{
+        const i = new Image();
+        i.src = src;
+        i.onload = () =>{
+            return resolve(i)
+        }
+    })
+}

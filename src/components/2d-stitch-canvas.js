@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Stage, Layer, Image } from 'react-konva';
+import {loadImage, getImageHeight, getImageWidth, getImageX, getImageY} from "../services/image";
 
 class CanvasComponent extends Component {
     constructor({imageGroup, scaleBy = 1.1}){
@@ -22,7 +23,7 @@ class CanvasComponent extends Component {
         this.initImage();
     }
     async initImage(){
-        const image = await this.loadImage(this.state.imageGroup[0][0][0].path);
+        const image = await loadImage(this.state.imageGroup[0][0][0].path);
         const imageGroup = this.state.imageGroup;
         imageGroup[0][0][0].image = image;
         imageGroup[0][0][0].height = image.height;
@@ -35,29 +36,19 @@ class CanvasComponent extends Component {
             baseImageWidth: image.width,
             baseImageHeight: image.height,
             layersLoaded: {0: true}
-        })
-
-        console.log(this.refs)
+        });
     }
-    loadImage(src){
-        return new Promise(resolve=>{
-            const i = new window.Image();
-            i.src = src;
-            i.onload = () =>{
-                return resolve(i)
-            }
-        })
-    }
+    // extract to own class
     loadLayer(layerNumber){
         this.state.imageGroup[layerNumber].forEach((images, y)=>{
             images.forEach(async (image, x)=>{
-                const loadedImage = await this.loadImage(image.path)
+                const loadedImage = await loadImage(image.path);
                 const imageGroup = this.state.imageGroup;
                 imageGroup[layerNumber][y][x].image = loadedImage;
-                imageGroup[layerNumber][y][x].height = this.getImageHeight(layerNumber);
-                imageGroup[layerNumber][y][x].width = this.getImageWidth(layerNumber);
-                imageGroup[layerNumber][y][x].x = this.getImageX(layerNumber, y);
-                imageGroup[layerNumber][y][x].y = this.getImageY(layerNumber, x);
+                imageGroup[layerNumber][y][x].height = getImageHeight(this.state.baseImageHeight, layerNumber);
+                imageGroup[layerNumber][y][x].width = getImageWidth(this.state.baseImageWidth, layerNumber);
+                imageGroup[layerNumber][y][x].x = getImageX(this.state.baseImageWidth, layerNumber, y);
+                imageGroup[layerNumber][y][x].y = getImageY(this.state.baseImageHeight, layerNumber, x);
                 this.setState({
                     imageGroup: imageGroup
                 })
@@ -70,19 +61,7 @@ class CanvasComponent extends Component {
     isLayerLoaded(layerNumber){
         return this.state.layersLoaded[layerNumber]
     }
-    getImageWidth(layer){
-        return this.state.baseImageWidth/Math.pow(2, layer)
-    }
-    getImageHeight(layer){
-        return this.state.baseImageHeight/Math.pow(2, layer)
-    }
-    getImageX(layer, position){
-        return this.state.baseImageWidth/Math.pow(2, layer)*position
-    }
-    getImageY(layer, position){
-        return this.state.baseImageHeight/Math.pow(2, layer)*position
-    }
-    wheel({evt}){
+    handleWheel({evt}){
         evt.preventDefault();
 
         const stage = this.refs.stage;
@@ -107,7 +86,7 @@ class CanvasComponent extends Component {
 
         stage.batchDraw();
     }
-    calcVisibleLayer(newScale = 1){
+    calcVisibleLayer(newScale){
         let visibleLayer = Math.floor(newScale)-1;
         if(visibleLayer < 0){
             visibleLayer = 0
@@ -116,7 +95,6 @@ class CanvasComponent extends Component {
             visibleLayer = this.state.imageGroup.length-1
         }
         return visibleLayer
-
     }
     layerIsVisible(layer){
         return this.state.visibleLayer === layer
@@ -129,7 +107,7 @@ class CanvasComponent extends Component {
                     ref="stage"
                     width={window.innerWidth}
                     height={window.innerHeight}
-                    onWheel={(e) => this.wheel(e)}
+                    onWheel={(e) => this.handleWheel(e)}
                     draggable={true}
                     scaleX={this.state.scale}
                     scaleY={this.state.scale}

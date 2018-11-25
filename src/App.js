@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import CanvasComponent from "./components/2d-stitch-canvas";
-import {getImagePaths} from "./services/image";
+import { getImagePaths } from "./services/image";
 
 class App extends Component {
   constructor(props){
