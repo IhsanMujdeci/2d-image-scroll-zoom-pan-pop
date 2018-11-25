@@ -2,63 +2,34 @@ import React, { Component } from 'react';
 import { Stage, Layer, Image } from 'react-konva';
 //import Konva from 'konva'
 
-const imagePath = "/images/tiled/";
-const images = [
-    [
-        [imagePath+'/0/0/0.jpg']
-    ],
-    [
-        [imagePath+'/1/0/0.jpg', imagePath+'/1/0/1.jpg'],
-        [imagePath+'/1/1/0.jpg', imagePath+'/1/1/1.jpg']
-    ],
-    [
-        [imagePath+'/2/0/0.jpg', imagePath+'/2/0/1.jpg', imagePath+'/2/0/2.jpg',imagePath+'/2/0/3.jpg'],
-        [imagePath+'/2/1/0.jpg', imagePath+'/2/1/1.jpg', imagePath+'/2/1/2.jpg',imagePath+'/2/1/3.jpg'],
-        [imagePath+'/2/2/0.jpg', imagePath+'/2/2/1.jpg', imagePath+'/2/2/2.jpg',imagePath+'/2/2/3.jpg'],
-        [imagePath+'/2/3/0.jpg', imagePath+'/2/3/1.jpg', imagePath+'/2/3/2.jpg',imagePath+'/2/3/3.jpg']
-    ],
-    [
-        [
-            imagePath+'/3/0/0.jpg', imagePath+'/3/0/1.jpg', imagePath+'/3/0/2.jpg',imagePath+'/3/0/3.jpg',
-            imagePath+'/3/0/4.jpg', imagePath+'/3/0/5.jpg', imagePath+'/3/0/5.jpg',imagePath+'/3/0/6.jpg'
-        ],
-        [
-            imagePath+'/3/1/0.jpg', imagePath+'/3/1/1.jpg', imagePath+'/3/1/2.jpg',imagePath+'/3/1/3.jpg',
-            imagePath+'/3/1/4.jpg', imagePath+'/3/1/5.jpg', imagePath+'/3/1/5.jpg',imagePath+'/3/1/6.jpg'
-        ],
-        [
-            imagePath+'/3/2/0.jpg', imagePath+'/3/2/1.jpg', imagePath+'/3/2/2.jpg',imagePath+'/3/2/3.jpg',
-            imagePath+'/3/2/4.jpg', imagePath+'/3/2/5.jpg', imagePath+'/3/2/5.jpg',imagePath+'/3/2/6.jpg'
-        ],
-        [
-            imagePath+'/3/3/0.jpg', imagePath+'/3/3/1.jpg', imagePath+'/3/3/2.jpg',imagePath+'/3/3/3.jpg',
-            imagePath+'/3/3/4.jpg', imagePath+'/3/3/5.jpg', imagePath+'/3/3/5.jpg',imagePath+'/3/3/6.jpg'
-        ],
-        [
-            imagePath+'/3/4/0.jpg', imagePath+'/3/4/1.jpg', imagePath+'/3/4/2.jpg',imagePath+'/3/4/3.jpg',
-            imagePath+'/3/4/4.jpg', imagePath+'/3/4/5.jpg', imagePath+'/3/4/5.jpg',imagePath+'/3/4/6.jpg'
-        ],
-        [
-            imagePath+'/3/5/0.jpg', imagePath+'/3/5/1.jpg', imagePath+'/3/5/2.jpg',imagePath+'/3/5/3.jpg',
-            imagePath+'/3/5/4.jpg', imagePath+'/3/5/5.jpg', imagePath+'/3/5/5.jpg',imagePath+'/3/5/6.jpg'
-        ],
-        [
-            imagePath+'/3/6/0.jpg', imagePath+'/3/6/1.jpg', imagePath+'/3/6/2.jpg',imagePath+'/3/6/3.jpg',
-            imagePath+'/3/6/4.jpg', imagePath+'/3/6/5.jpg', imagePath+'/3/6/5.jpg',imagePath+'/3/6/6.jpg'
-        ],
-        [
-            imagePath+'/3/7/0.jpg', imagePath+'/3/7/1.jpg', imagePath+'/3/7/2.jpg',imagePath+'/3/7/3.jpg',
-            imagePath+'/3/7/4.jpg', imagePath+'/3/7/5.jpg', imagePath+'/3/7/5.jpg',imagePath+'/3/7/6.jpg'
-        ]
-    ]
-];
+function imagePaths(uri, layers, mimeType){
+    let imageGroup = [];
+
+    for(let layer = 0; layer < layers; layer++){
+        imageGroup.push([]);
+        let rows = Math.pow(2,layer);
+        for(let y = 0; y < rows; y++){
+            imageGroup[layer].push([]);
+            for(let x = 0; x < rows; x++){
+                imageGroup[layer][y].push(
+                    {path: `${uri}/${layer}/${y}/${x}.${mimeType}`, image: null}
+                )
+            }
+        }
+    }
+
+    return imageGroup
+}
+
+const imageUri = "/images/tiled";
+const imagesImproved = imagePaths(imageUri, 4, 'jpg');
 
 class CanvasComponent extends Component {
     constructor(props){
         super(props);
         this.state = {
             image: null,
-            imageGroup: images,
+            layers: imagesImproved,
             stage: this.refs.stage,
             scaleBy: 1.1,
             lastDist: 0,
@@ -67,10 +38,6 @@ class CanvasComponent extends Component {
             y:0,
             baseImageWidth:0,
             baseImageHeight:0,
-            img0: null,
-            img1: null,
-            img2: null,
-            img3: null,
             layer0Visible: true,
             layer1Visible: false,
             loadedImages: [new Array(2), new Array(2)]
@@ -83,10 +50,8 @@ class CanvasComponent extends Component {
         const image = new window.Image();
 
         // init the first image
-        image.src = images[0][0];
+        image.src = imagesImproved[0][0][0].path;
         image.onload = ()=> {
-            console.log(image.width)
-            console.log(image.height)
             this.setState({
                 image:  image,
                 baseImageWidth: image.width,
@@ -94,53 +59,21 @@ class CanvasComponent extends Component {
             })
         };
 
-        images[1].forEach((images, y)=>{
-            images.forEach((image, x)=>{
-                const i = new window.Image();
-                i.src = image
-                i.onload = () => {
-                    let loadedImages = this.state.loadedImages;
-                    loadedImages[y][x] = i
-                    this.setState({
-                        loadedImages: loadedImages
-                    })
-                }
+        this.state.layers.forEach((layer, l)=>{
+            layer.forEach((images, y)=>{
+                images.forEach((image, x)=>{
+                    const i = new window.Image();
+                    i.src = image.path;
+                    i.onload = () => {
+                        let layers = this.state.layers;
+                        layers[l][y][x].image = i;
+                        this.setState({
+                            layers: layers
+                        })
+                    }
+                })
             })
         })
-
-        console.log(this.state.loadedImages)
-
-        const img0 = new window.Image();
-        img0.src = images[1][0][0];
-        img0.onload = () => {
-            this.setState({
-                img0: img0
-            })
-        }
-
-        const img1 = new window.Image();
-        img1.src =  images[1][1][0];
-        img1.onload = () => {
-            this.setState({
-                img2: img2
-            })
-        };
-
-        const img2 = new window.Image();
-        img2.src = images[1][0][1];
-        img2.onload = () => {
-            this.setState({
-                img1: img1
-            })
-        };
-
-        const img3 = new window.Image();
-        img3.src =  images[1][1][1];
-        img3.onload = () => {
-            this.setState({
-                img3: img3
-            })
-        }
     }
     getDimension(layer){
         return this.state.baseImageWidth/(layer+1)
@@ -184,7 +117,7 @@ class CanvasComponent extends Component {
     render() {
         return (
             <>
-                <p>Zoom: {this.state.scale} {this.getDimension(1)}</p>
+                <p>Zoom: {this.state.scale}</p>
                 <Stage
                     ref="stage"
                     width={window.innerWidth}
@@ -227,28 +160,28 @@ class CanvasComponent extends Component {
                         visible={this.state.layer1Visible}
                     >
                         <Image
-                            image={this.state.loadedImages[0][0]}
+                            image={this.state.layers[1][0][0].image}
                             height={this.getDimension(1)}
                             width={this.getDimension(1)}
                             x={this.getPosition(1, 0)}
                             y={this.getPosition(1,0)}
                         />
                         <Image
-                            image={this.state.loadedImages[1][0]}
+                            image={this.state.layers[1][1][0].image}
                             height={this.getDimension(1)}
                             width={this.getDimension(1)}
                             x={this.getPosition(1, 1)}
                             y={this.getPosition(1, 0)}
                         />
                         <Image
-                            image={this.state.loadedImages[0][1]}
+                            image={this.state.layers[1][0][1].image}
                             height={this.getDimension(1)}
                             width={this.getDimension(1)}
                             x={this.getPosition(1, 0)}
                             y={this.getPosition(1, 1)}
                         />
                         <Image
-                            image={this.state.loadedImages[1][1]}
+                            image={this.state.layers[1][1][1].image}
                             height={this.getDimension(1)}
                             width={this.getDimension(1)}
                             x={this.getPosition(1, 1)}
@@ -283,6 +216,7 @@ class CanvasComponent extends Component {
                                         width={this.getDimension(layer)}
                                         x={this.getPosition(layer, x)}
                                         y={this.getPosition(layer, y)}
+                                        image={this.state.layers[layer][y][x].image}
                                     />
                                 )
                             )}
