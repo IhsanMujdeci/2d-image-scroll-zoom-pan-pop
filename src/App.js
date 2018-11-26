@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.scss';
 import CanvasComponent from "./containers/stitch-canvas/stitch-canvas";
-import { getImagePaths } from "./services/image";
+import { getImagePaths } from "./services/images/image";
 import { Header } from "./components/header/header";
 
 class App extends Component {

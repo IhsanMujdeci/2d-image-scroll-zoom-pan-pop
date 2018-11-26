@@ -17,20 +17,12 @@ export function getImagePaths(uri, layers, mimeType){
     return imageGroup
 }
 
-export function getImageWidth(baseImageWidth, layer){
-    return baseImageWidth/Math.pow(2, layer)
+export function getImageSideLength(length, layer){
+    return length/Math.pow(2, layer)
 }
 
-export function getImageHeight(baseImageHeight, layer){
-    return baseImageHeight/Math.pow(2, layer)
-}
-
-export function getImageX(baseImageWidth, layer, position){
-    return baseImageWidth/Math.pow(2, layer)*position
-}
-
-export function getImageY(baseImageHeight, layer, position){
-    return baseImageHeight/Math.pow(2, layer)*position
+export function getImageCoordinate(baseImageSideLength, layer, position){
+    return baseImageSideLength/Math.pow(2, layer)*position
 }
 
 export function loadImage(src){

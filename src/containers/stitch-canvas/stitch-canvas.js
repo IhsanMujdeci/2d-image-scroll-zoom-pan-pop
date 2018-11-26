@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Stage, Layer, Image } from 'react-konva';
-import {loadImage, getImageHeight, getImageWidth, getImageX, getImageY, centerImagePosition} from "../../services/image";
+import {loadImage, getImageSideLength, getImageCoordinate, centerImagePosition} from "../../services/images/image";
 import {Button} from "../../components/button/button";
 import "./stitch-canvas.scss";
 import { faUndo, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -59,10 +59,10 @@ class CanvasComponent extends Component {
                 const loadedImage = await loadImage(image.path);
                 const imageGroup = this.state.imageGroup;
                 imageGroup[layerNumber][y][x].image = loadedImage;
-                imageGroup[layerNumber][y][x].height = getImageHeight(this.state.baseImageHeight, layerNumber);
-                imageGroup[layerNumber][y][x].width = getImageWidth(this.state.baseImageWidth, layerNumber);
-                imageGroup[layerNumber][y][x].x = getImageX(this.state.baseImageWidth, layerNumber, y);
-                imageGroup[layerNumber][y][x].y = getImageY(this.state.baseImageHeight, layerNumber, x);
+                imageGroup[layerNumber][y][x].height = getImageSideLength(this.state.baseImageHeight, layerNumber);
+                imageGroup[layerNumber][y][x].width = getImageSideLength(this.state.baseImageWidth, layerNumber);
+                imageGroup[layerNumber][y][x].x = getImageCoordinate(this.state.baseImageWidth, layerNumber, y);
+                imageGroup[layerNumber][y][x].y = getImageCoordinate(this.state.baseImageHeight, layerNumber, x);
                 this.setState({
                     imageGroup: imageGroup
                 })

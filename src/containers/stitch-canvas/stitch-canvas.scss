@@ -10,7 +10,7 @@
   bottom: 40px;
   right: 40px;
   z-index: 2;
-  :first-child{
+  >:first-child{
     margin-bottom: 5px;
   }
 }
