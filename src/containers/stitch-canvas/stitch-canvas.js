@@ -6,7 +6,7 @@ import "./stitch-canvas.scss";
 import { faUndo, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons'
 
 class CanvasComponent extends Component {
-    constructor({ imageGroup, scaleBy = 1.1, eagerLoad = false }){
+    constructor({ imageGroup, scaleBy = 1.1, eagerLoad = false, clickZoomDelta = 500}){
         super({imageGroup, scaleBy, eagerLoad});
         this.state = {
             imageGroup: imageGroup,
@@ -20,7 +20,7 @@ class CanvasComponent extends Component {
             baseImageWidth:0,
             baseImageHeight:0,
             visibleLayer:0,
-            clickZoomDelta:500,
+            clickZoomDelta:clickZoomDelta,
             layersLoaded:{}
         }
     }

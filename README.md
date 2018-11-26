@@ -5,6 +5,16 @@
 
 This installs dependencies and starts dev server
 
+### Features
+- Scroll can zoom in and out
+- Click and drag to pan
+- Plus and minus buttons bottom right also let you zoom
+- Reset button bottom right sets the image to original position
+- If fed in props of `eagerLoad: true` to `stitch-canvas` the images will be loaded 1 layer early every layer switch
+- Image group is decoupled from `stitch-canvas` so any images could be loaded in
+- Zoom factor on scroll and on click can be adjusted but passing in `scaleBy` and `zoomClickDelta` respectively
+  
+
 ## Available Scripts
 
 In the project directory, you can run:
