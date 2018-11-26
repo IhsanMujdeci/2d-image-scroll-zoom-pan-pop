@@ -113,6 +113,7 @@ class CanvasComponent extends Component {
         const newScale = this.calcScale(delta, this.state.scale);
         const visibleLayer = this.calcVisibleLayer(newScale);
         this.shouldLoadLayer(visibleLayer);
+
         this.setState({
             scale: newScale,
             visibleLayer: visibleLayer
