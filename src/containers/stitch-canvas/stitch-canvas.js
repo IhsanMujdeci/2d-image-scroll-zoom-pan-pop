@@ -140,7 +140,7 @@ class CanvasComponent extends Component {
     }
     resetImage(){
         const stageX = centerImagePosition(this.refs.container.clientWidth, this.state.baseImageWidth);
-        const stageY = centerImagePosition(this.refs.container.clientHeight, this.state.baseImageWidth);
+        const stageY = centerImagePosition(this.refs.container.clientHeight, this.state.baseImageHeight);
 
         this.setState({
             x: stageX,
