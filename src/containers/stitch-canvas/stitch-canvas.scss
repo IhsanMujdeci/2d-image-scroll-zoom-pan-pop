@@ -1,0 +1,26 @@
+.reset{
+  position:absolute;
+  bottom: 40px;
+  left: 40px;
+  z-index: 2;
+}
+
+.zoom-group{
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  z-index: 2;
+  :first-child{
+    margin-bottom: 5px;
+  }
+}
+
+.zoom{
+  position: absolute;
+  right: 40px;
+  top: 40px;
+  z-index: 2;
+  margin: 0;
+  font-weight: 400;
+  font-size: 30px;
+}

@@ -42,3 +42,7 @@ export function loadImage(src){
         }
     })
 }
+
+export function centerImagePosition(containerAxis, imageAxis){
+    return containerAxis/2 - imageAxis/2
+}

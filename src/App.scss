@@ -1,6 +1,8 @@
 @import './variables';
 
 .stitch-canvas{
-  position: fixed;
-  top: $headerHeight
+  position: absolute;
+  top: $headerHeight;
+  overflow: hidden;
+  height: calc(100vh - #{$headerHeight});
 }

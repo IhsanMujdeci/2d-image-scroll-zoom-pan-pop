@@ -14,7 +14,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-          {/*<Header/>*/}
+          <Header/>
           <CanvasComponent
               className='stitch-canvas'
               imageGroup={this.imageGroup} scaleBy={1.05}

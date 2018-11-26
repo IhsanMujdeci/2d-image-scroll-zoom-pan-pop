@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { Stage, Layer, Image } from 'react-konva';
-import {loadImage, getImageHeight, getImageWidth, getImageX, getImageY} from "../../services/image";
+import {loadImage, getImageHeight, getImageWidth, getImageX, getImageY, centerImagePosition} from "../../services/image";
 import {Button} from "../../components/button/button";
-// import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import "./stitch-canvas.scss";
+import { faUndo, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons'
 
 class CanvasComponent extends Component {
-    constructor({imageGroup, scaleBy = 1.1, eagerLoad = false, className}){
+    constructor({ imageGroup, scaleBy = 1.1, eagerLoad = false }){
         super({imageGroup, scaleBy, eagerLoad});
         this.state = {
             imageGroup: imageGroup,
@@ -19,6 +20,7 @@ class CanvasComponent extends Component {
             baseImageWidth:0,
             baseImageHeight:0,
             visibleLayer:0,
+            clickZoomDelta:500,
             layersLoaded:{}
         }
     }
@@ -34,19 +36,24 @@ class CanvasComponent extends Component {
         imageGroup[0][0][0].x = 0;
         imageGroup[0][0][0].y = 0;
 
+        const stageX = centerImagePosition(this.refs.container.clientWidth, image.width);
+        const stageY = centerImagePosition(this.refs.container.clientHeight, image.height);
+
         if(this.shouldEagerLoad()){
-            this.loadLayer(this.limitToMaxLayer(1))
+            this.loadLayer(this.limitToActualLayer(1))
         }
 
         this.setState({
             imageGroup: imageGroup,
             baseImageWidth: image.width,
             baseImageHeight: image.height,
-            layersLoaded: {0: true}
+            layersLoaded: {0: true},
+            x: stageX,
+            y: stageY
         });
     }
-    // extract to own class
     loadLayer(layerNumber){
+        // TODO consider putting actualLayer function here
         this.state.imageGroup[layerNumber].forEach((images, y)=>{
             images.forEach(async (image, x)=>{
                 const loadedImage = await loadImage(image.path);
@@ -77,15 +84,10 @@ class CanvasComponent extends Component {
         const mousePointX = stage.getPointerPosition().x / oldScale - stage.x() / oldScale;
         const mousePointY = stage.getPointerPosition().y / oldScale - stage.y() / oldScale;
 
-        const newScale = this.zoom(evt.deltaY, oldScale)
+        const newScale = this.calcScale(evt.deltaY, oldScale);
         let visibleLayer = this.calcVisibleLayer(newScale);
 
-        if(!this.isLayerLoaded(visibleLayer)){
-            this.loadLayer(visibleLayer);
-        }
-        if(this.shouldEagerLoad(visibleLayer)){
-            this.loadLayer(this.limitToMaxLayer(visibleLayer + 1))
-        }
+        this.shouldLoadLayer(visibleLayer);
 
         this.setState({
             scale: newScale,
@@ -96,20 +98,37 @@ class CanvasComponent extends Component {
 
         stage.batchDraw();
     }
-    zoom(delta, oldScale){
+    shouldLoadLayer(layer){
+        if(!this.isLayerLoaded(layer)){
+            this.loadLayer(layer);
+        }
+        if(this.shouldEagerLoad(layer)){
+            this.loadLayer(this.limitToActualLayer(layer + 1))
+        }
+    }
+    calcScale(delta, oldScale){
         return delta < 0 ? oldScale * this.state.scaleBy : oldScale / this.state.scaleBy;
     }
+    zoom(delta){
+        const newScale = this.calcScale(delta, this.state.scale);
+        const visibleLayer = this.calcVisibleLayer(newScale);
+        this.shouldLoadLayer(visibleLayer);
+        this.setState({
+            scale: newScale,
+            visibleLayer: visibleLayer
+        })
+    }
     shouldEagerLoad(visibleLayer){
-        return this.state.eagerLoad && !this.isLayerLoaded(this.limitToMaxLayer(visibleLayer + 1));
+        return this.state.eagerLoad && !this.isLayerLoaded(this.limitToActualLayer(visibleLayer + 1));
     }
     calcVisibleLayer(newScale){
         let visibleLayer = Math.floor(newScale)-1;
-        if(visibleLayer < 0){
-            visibleLayer = 0
-        }
-        return this.limitToMaxLayer(visibleLayer)
+        return this.limitToActualLayer(visibleLayer)
     }
-    limitToMaxLayer(layer){
+    limitToActualLayer(layer){
+        if(layer < 0){
+            return 0
+        }
         if(layer > this.state.imageGroup.length-1){
             return this.state.imageGroup.length-1
         }
@@ -118,15 +137,58 @@ class CanvasComponent extends Component {
     layerIsVisible(layer){
         return this.state.visibleLayer === layer
     }
+    resetImage(){
+        const stageX = centerImagePosition(this.refs.container.clientWidth, this.state.baseImageWidth);
+        const stageY = centerImagePosition(this.refs.container.clientHeight, this.state.baseImageWidth);
+
+        this.setState({
+            x: stageX,
+            y: stageY,
+            scale: 1,
+            visibleLayer: 0
+        })
+    }
+    dragBoundFunc(pos){
+        if(!pos){
+            return
+        }
+        this.setState({
+            x: pos.x,
+            y: pos.y
+        });
+        return{
+            x:pos.x,
+            y:pos.y
+        }
+    }
     render() {
         return (
-            <div className={this.props.className}>
+            <div className={this.props.className} ref="container">
+                <h3 className="zoom">x {this.state.scale.toFixed(2)}</h3>
+                <Button
+                    className="reset"
+                    text='reset'
+                    onClick={this.resetImage.bind(this)}
+                    icon={faUndo}
+                />
+
+                <div className="zoom-group">
+                    <Button
+                        onClick={this.zoom.bind(this, -this.state.clickZoomDelta)}
+                        icon={faPlus}
+                    />
+                    <Button
+                        onClick={this.zoom.bind(this, this.state.clickZoomDelta)}
+                        icon={faMinus}
+                    />
+                </div>
                 <Stage
                     ref="stage"
                     width={window.innerWidth}
                     height={window.innerHeight}
                     onWheel={(e) => this.handleWheel(e)}
                     draggable={true}
+                    dragBoundFunc={this.dragBoundFunc.bind(this)}
                     scaleX={this.state.scale}
                     scaleY={this.state.scale}
                     x={this.state.x}
