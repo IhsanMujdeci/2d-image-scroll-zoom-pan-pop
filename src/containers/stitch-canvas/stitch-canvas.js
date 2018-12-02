@@ -7,7 +7,7 @@ import { faUndo, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons'
 
 class CanvasComponent extends Component {
     constructor({ imageGroup, scaleBy = 1.1, eagerLoad = false, clickZoomDelta = 500}){
-        super({imageGroup, scaleBy, eagerLoad});
+        super(...arguments);
         this.state = {
             imageGroup: imageGroup,
             stage: this.refs.stage,
@@ -80,9 +80,11 @@ class CanvasComponent extends Component {
 
         const stage = this.refs.stage;
         const oldScale = this.state.scale;
+        const stagePointerX = stage.getPointerPosition().x;
+        const stagePointerY = stage.getPointerPosition().y;
 
-        const mousePointX = stage.getPointerPosition().x / oldScale - stage.x() / oldScale;
-        const mousePointY = stage.getPointerPosition().y / oldScale - stage.y() / oldScale;
+        const mousePointX = stagePointerX / oldScale - stage.x() / oldScale;
+        const mousePointY = stagePointerY / oldScale - stage.y() / oldScale;
 
         const newScale = this.calcScale(evt.deltaY, oldScale);
         let visibleLayer = this.calcVisibleLayer(newScale);
@@ -91,8 +93,8 @@ class CanvasComponent extends Component {
 
         this.setState({
             scale: newScale,
-            x: -(mousePointX - stage.getPointerPosition().x / newScale) * newScale,
-            y: -(mousePointY - stage.getPointerPosition().y / newScale) * newScale,
+            x: -(mousePointX - stagePointerX / newScale) * newScale,
+            y: -(mousePointY - stagePointerY / newScale) * newScale,
             visibleLayer: visibleLayer
         });
 
@@ -166,6 +168,7 @@ class CanvasComponent extends Component {
         return (
             <div className={this.props.className} ref="container">
                 <h3 className="zoom">x {this.state.scale.toFixed(2)}</h3>
+
                 <Button
                     className="reset"
                     text='reset'
@@ -183,6 +186,7 @@ class CanvasComponent extends Component {
                         icon={faMinus}
                     />
                 </div>
+
                 <Stage
                     ref="stage"
                     width={window.innerWidth}
@@ -198,10 +202,12 @@ class CanvasComponent extends Component {
                     {this.state.imageGroup.map((group, layer) =>
                         <Layer
                             visible={this.layerIsVisible(layer)}
+                            key={layer}
                         >
                             {group.map((images, x) =>
                                 images.map((image, y)=>
                                     <Image
+                                        key={layer+','+x+','+y}
                                         height={this.state.imageGroup[layer][x][y].height}
                                         width={this.state.imageGroup[layer][x][y].width}
                                         x={this.state.imageGroup[layer][x][y].x}

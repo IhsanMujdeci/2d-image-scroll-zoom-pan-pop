@@ -6,10 +6,10 @@ import { Header } from "./components/header/header";
 
 class App extends Component {
   constructor(props){
-      super(props)
+      super(props);
       const imageUri = "/images/tiled";
       const imageMimeType = 'jpg';
-      this.imageGroup = getImagePaths(imageUri, 4, imageMimeType)
+      this.imageGroup = getImagePaths(imageUri, 4, imageMimeType);
   }
   render() {
     return (
@@ -17,7 +17,8 @@ class App extends Component {
           <Header/>
           <CanvasComponent
               className='stitch-canvas'
-              imageGroup={this.imageGroup} scaleBy={1.05}
+              imageGroup={this.imageGroup}
+              scaleBy={1.05}
           />
       </div>
     );
